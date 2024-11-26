@@ -113,8 +113,8 @@ export default function WorkspacePage({ params }: { params: { id: string } }) {
             {selectedComposer && <DownloadMenu tab={{
               id: selectedComposer.composerId,
               title: selectedComposer.text || 'Untitled',
-              timestamp: new Date(selectedComposer.lastUpdatedAt).toISOString(),
-              bubbles: selectedComposer.conversation.map(msg => ({
+              timestamp: new Date(selectedComposer.lastUpdatedAt || Date.now()).toISOString(),
+              bubbles: (selectedComposer.conversation || []).map(msg => ({
                 type: msg.type === 1 ? 'user' : 'ai',
                 text: msg.text,
                 modelType: msg.type === 2 ? 'Composer Assistant' : undefined,
@@ -256,7 +256,7 @@ export default function WorkspacePage({ params }: { params: { id: string } }) {
                     )}
                   </div>
                 ))}
-                {selectedComposer && selectedComposer.conversation.map((message) => (
+                {selectedComposer && (selectedComposer.conversation || []).map((message) => (
                   <div 
                     key={message.bubbleId}
                     className={`p-4 rounded-lg border ${
