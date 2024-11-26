@@ -19,6 +19,20 @@ interface ComposerWithWorkspace extends ComposerChat {
   workspaceFolder?: string;
 }
 
+// Helper function to safely format dates
+const safeFormat = (date: string | number | Date | undefined | null) => {
+  try {
+    if (!date) return 'Unknown date'
+    const dateObj = new Date(date)
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) return 'Invalid date'
+    return format(dateObj, 'PPP p')
+  } catch (error) {
+    console.error('Error formatting date:', error, 'Raw value:', date)
+    return 'Invalid date'
+  }
+}
+
 export function ComposerList() {
   const [composers, setComposers] = useState<ComposerWithWorkspace[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -31,8 +45,8 @@ export function ComposerList() {
         
         // Sort by last message timestamp, newest first
         data.sort((a: ComposerWithWorkspace, b: ComposerWithWorkspace) => {
-          const aTime = a.lastUpdatedAt || 0
-          const bTime = b.lastUpdatedAt || 0
+          const aTime = a.lastUpdatedAt || a.createdAt || 0
+          const bTime = b.lastUpdatedAt || b.createdAt || 0
           return bTime - aTime
         })
 
@@ -88,10 +102,10 @@ export function ComposerList() {
                 )}
               </TableCell>
               <TableCell>
-                {format(composer.lastUpdatedAt || composer.createdAt || Date.now(), 'PPP p')}
+                {safeFormat(composer.lastUpdatedAt || composer.createdAt)}
               </TableCell>
               <TableCell className="text-right">
-                {composer.conversation.length}
+                {composer.conversation?.length || 0}
               </TableCell>
             </TableRow>
           ))}
